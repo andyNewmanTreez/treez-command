@@ -1,0 +1,17 @@
+# The following options will be passed to all MySQL clients
+[client]
+max_allowed_packet=100M
+
+[mysqld]
+character_set_server=utf8
+collation_server=utf8_general_ci
+default_storage_engine=InnoDB
+event_scheduler=ON
+explicit_defaults_for_timestamp=false
+lower_case_table_names=1
+max_allowed_packet=1073741824
+myisam_sort_buffer_size = 8M
+sql-mode=NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION
+
+
+# Here follows entries for some specific programs

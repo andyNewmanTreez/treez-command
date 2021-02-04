@@ -1,0 +1,5 @@
+# sourcefile for dockerized build
+#alias treez='docker-compose -f dockerfiles/docker-compose.yml -f dockerfiles/docker-compose-services.yml'
+alias treez_dependencies='docker build -t sourcebase:latest .'
+alias treez="docker-compose -f dockerfiles/docker-compose.yml"
+

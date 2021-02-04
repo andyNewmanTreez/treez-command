@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  node:
+    container_name: node
+    build:
+      context: infrastructure/httpd
+      dockerfile: Dockerfile
+    image: httpservice/latest
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - apps/portal:/var/www/website
+    depends_on:
+      - "db"
+    network_mode: "host"
+
+
+
+  db:
+    container_name: db
+    image: mysql:5.7.24
+    volumes:
+    - ./infrastructure/db/mysqlconfig:/etc/mysql/conf.d
+    - ./infrastructure/db/sql_dumps/:/docker-entrypoint-initdb.d/
+    environment:
+     - MYSQL_ROOT_PASSWORD=root
+    ports:
+    - 3306:3306
+    network_mode: "host"
+
+  postgres:
+    container_name: postgres
+    image: postgres:13
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - 5432:5432
+    network_mode: "host"
+
+  hints:
+    container_name: hints
+    build:
+      context: ./apps/Hints
+      dockerfile: Dockerfile
+    image: hintsservice/latest
+    ports:
+      - 8080:8080
+      - 8002:8000
+    environment:
+      - JAVA_OPTS="-DXss=20000k -DXms2g -DXmx4g"
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/dispensary?autoReconnect=true&useSSL=false
+
+      - JAVA_HOME=/usr/local/openjdk-8
+    command: bash -c " sleep 15 && /usr/local/tomcat/bin/catalina.sh run"
+    depends_on:
+      - "db"
+    network_mode: "host"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/HintsService/v1.0/rest/config/restaurant/1/config/init" ]
+      timeout: 5s
+      interval: 10s
+      retries: 10
+
+
+  inventory:
+    container_name: inventory
+    build:
+      context: ./apps/Inventory
+      dockerfile: Dockerfile
+    image: inventoryservice/latest
+    ports:
+      - 7777:7777
+      - 8001:8000
+    command: bash -c "java -jar /inventorySource/target/InventoryService-1.0.jar"
+    environment:
+      - db.username=root
+      - db.password=root
+      - db.host=localhost
+      - db.port=3306
+      - db.schema=inventory
+      - server.port=7777
+      - hints.host=${HOST_ADDRESS}:8080
+      - hints.restaurant.id=1
+      - hints.rest.prefix=HintsService/v1.0/rest
+      - api.expose.exceptions=true
+      - tracking.host=localhost:8002
+      - tracking.prefix=TrackingService
+      - show.sql=true
+      - treez.auth.username=ZGV3ZXlAdHJlZXouaW8
+      - treez.auth.password=UGFzc3dvcmQx
+      - trace.treez.url=http://${HOST_ADDRESS}:<TT-Port>
+      - trace.treez.locale=[CA|MI]
+      - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/inventory?autoReconnect=true&useSSL=false
+      - JAVA_HOME=/usr/local/openjdk-8
+    depends_on:
+      hints:
+        condition: service_healthy
+    network_mode: "host"
+
+
+
+  ticketservice:
+    container_name: treez_ticket
+    build:
+      context: ../TicketCalculator
+      dockerfile: Dockerfile
+    image: ticketcalculator:latest
+    ports:
+      - 9999:9999
+      - 8007:8007
+    environment:
+#      - db.username=root
+#      - db.password=root
+#      - db.host=localhost
+#      - db.port=3306
+#      - db.schema=dispensary
+#      - server.port=9999
+#      - hints.host=${HOST_ADDRESS}:8080
+#      - hints.restaurant.id=1
+#      - hints.rest.prefix=HintsService/v1.0/rest
+#      - api.expose.exceptions=true
+#      - tracking.host=localhost:8002
+#      - tracking.prefix=TrackingService
+#      - show.sql=true
+#      - treez.auth.username=ZGV3ZXlAdHJlZXouaW8
+#      - treez.auth.password=UGFzc3dvcmQx
+#      - trace.treez.url=http://${HOST_ADDRESS}:<TT-Port>
+#      - trace.treez.locale=[CA|MI]
+#      - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/dispensary?autoReconnect=true&useSSL=false
+#      - JAVA_HOME=/usr/local/openjdk-8
+      - db.host=localhost
+      - db.port=3306
+      - db.schema=dispensary
+      - db.username=root
+      - db.password=root
+      - server.port=9999
+    depends_on:
+      hintsservice:
+        condition: service_healthy
+      inventoryservice:
+          condition: service_started
+    network_mode: "host"

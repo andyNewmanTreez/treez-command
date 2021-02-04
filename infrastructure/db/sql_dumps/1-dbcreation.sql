@@ -1,0 +1,2 @@
+CREATE DATABASE inventory;
+CREATE DATABASE dispensary;
