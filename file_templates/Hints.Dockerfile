@@ -6,8 +6,8 @@ FROM tomcat:8.5-jdk8-openjdk
 #RUN mv apache-tomcat-8.0.53/* /opt/tomcat/.
 #RUN rm -rf /opt/tomcat/webapps/*
 #
-ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n
-ADD ./hints.war /usr/local/tomcat/webapps/HintsService.war
+ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,address=8009,server=y,suspend=n
+ADD ./app.war /usr/local/tomcat/webapps/HintsService.war
 
 #RUN cp /hintsSource/src/HintsService/target/HintsService-1.0-SNAPSHOT.war /opt/tomcat/webapps/HintsService.war
 #RUN cp /hints.war /usr/local/tomcat/webapps/HintsService.war
@@ -18,7 +18,7 @@ ADD ./hints.war /usr/local/tomcat/webapps/HintsService.war
 WORKDIR /usr/local/tomcat
 
 EXPOSE 8080
-EXPOSE 8000
+EXPOSE 8009
 CMD ["/usr/local/tomcat/bin/catalina.sh", "run"]
 
 
