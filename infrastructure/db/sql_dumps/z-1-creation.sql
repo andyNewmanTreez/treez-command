@@ -4,4 +4,6 @@ VALUES ('1', 'Andy', '$2y$12$6rjhcOwhCEGmfyDqhr7MxuX2hPNp8TxLD4JkvZepRut0vD0idvj
 
 -- UPDATE `inventory`.`tz_configuration` SET `value` = 'http://localhost:8303' WHERE (`id` = '987EA439-5DA4-4C77-B011-9298DB5B64AB');
 update inventory.tz_configuration set value = 'http://localhost:8303' where code = 'PRODUCT_API_URL';
-UPDATE `inventory`.`tz_configuration` SET `value` = '1' WHERE code = `CATALOG_ID`;
+UPDATE `inventory`.`tz_configuration` SET `value` = '1' WHERE code = 'CATALOG_ID';
+UPDATE `dispensary`.`crm_configuration` SET `value` = '1' WHERE code = 'INVENTORY_PACKAGE_API_ENABLED';
+UPDATE `dispensary`.`crm_configuration` SET `value` = '1' WHERE CODE = 'DELI_ENABLED';

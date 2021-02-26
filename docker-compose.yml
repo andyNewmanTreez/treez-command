@@ -56,9 +56,10 @@ services:
 #      - 8002:8000
     environment:
       - JAVA_OPTS="-DXss=20000k -DXms2g -DXmx4g"
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/dispensary?autoReconnect=true&useSSL=false
+   #   - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/dispensary?autoReconnect=true&useSSL=false
       - JAVA_HOME=/usr/local/openjdk-8
-    command: bash -c " sleep 15 && /usr/local/tomcat/bin/catalina.sh run"
+#      - DB_HOST=localhost
+    command: bash -c " /usr/local/tomcat/bin/catalina.sh run"
     depends_on:
       db:
         condition: service_started
